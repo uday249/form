@@ -1,0 +1,38 @@
+version: '3'
+services:
+
+  # Form Recognizer Feedback Loop Sample UX container http://localhost:3005
+  custom-supervised-sampleux:
+    image: containerpreview.azurecr.io/microsoft/cognitive-services-form-recognizer-custom-supervised-sampleux:latest
+    ports:
+      - 3005:3000
+    command: eula=accept
+      
+  # Form Recognizer Feedback Loop container http://localhost:5005
+  custom-supervised:
+    image: containerpreview.azurecr.io/microsoft/cognitive-services-form-recognizer-custom-supervised:latest
+    environment:
+      apikey: 80f3fcf1d7724af7a8ad763dfc423e13
+      billing: https://formrecognizer-ci.cognitiveservices.azure.com/
+      CORS__AllowedOrigins: "*"
+      CustomFormRecognizer__ComputerVisionApiKey: 80f3fcf1d7724af7a8ad763dfc423e13
+      CustomFormRecognizer__ComputerVisionEndpointUri: http://readlayout:5000/formrecognizer/v2.0-preview/readLayout/asyncAnalyze
+    links:
+      - readlayout
+    volumes:
+      - ./Mounts/output:/output
+      - ./Mounts/input:/input
+    ports:
+      - 5005:5000
+    command: eula=accept
+      
+  # ReadLayout container http://localhost:7005
+  readlayout:
+    image: containerpreview.azurecr.io/microsoft/cognitive-services-form-recognizer-readlayout:latest
+    environment:
+      apikey: 80f3fcf1d7724af7a8ad763dfc423e13
+      billing: https://formrecognizer-ci.cognitiveservices.azure.com/
+      CORS__AllowedOrigins: "*"
+    ports:
+      - 7005:5000
+    command: eula=accept
